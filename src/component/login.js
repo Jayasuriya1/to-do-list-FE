@@ -3,21 +3,31 @@ import React, { useEffect } from "react";
 import * as yup from "yup";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const userSchemaValidation = yup.object({
   email: yup.string().email().required("Email is required"),
   password: yup
     .string()
-    .required("Password is Rquired")
+    .required("Password is Required")
     .min(7, "Minimum 7 charactor is required"),
 });
 
 export default function Login() {
   const navigate = useNavigate();
+  const [open, setOpen] = React.useState(false);
+  const handleClose = () => {
+    setOpen(false);
+  };
+  const handleOpen = () => {
+    setOpen(true);
+  };
 
-  useEffect(()=>{
-    sessionStorage.clear()
-  },[])
+  useEffect(() => {
+    localStorage.removeItem("id_");
+    localStorage.removeItem("token_");
+  }, []);
 
   const { values, handleChange, handleSubmit, handleBlur, errors, touched } =
     useFormik({
@@ -28,7 +38,8 @@ export default function Login() {
       validationSchema: userSchemaValidation,
       onSubmit: async (data) => {
         try {
-          const response = await fetch("http://localhost:2500/login", {
+          handleOpen();
+          const response = await fetch("https://note-yftj.onrender.com/user/login", {
             method: "POST",
             body: JSON.stringify(data),
             headers: {
@@ -36,20 +47,17 @@ export default function Login() {
             },
           });
           const result = await response.json();
-          console.log(result)
-          console.log(data)
-          if (result.message === "User Login Successfully") {
-            toast.success(result.message);
-            sessionStorage.setItem('token',result.token)
-            sessionStorage.setItem('id',result.id)
-            navigate("/note");
-          } else if (result.message === "Invaild Password") {
-            toast.error("Invalid Password");
+          if (result.success == true) {
+            localStorage.setItem("token_", result.token);
+            localStorage.setItem("id_", result.id);
+            navigate("/home");
           } else {
-            toast.error("user does't exist please check the email.");
+            toast.error(result.message);
           }
         } catch (error) {
           console.log(error);
+        } finally {
+          handleClose();
         }
       },
     });
@@ -83,7 +91,7 @@ export default function Login() {
                 placeholder="Email"
               ></input>
               {touched.email && errors.email ? (
-                <p style={{ color: "crimson" }}>{errors.email}</p>
+                <p style={{ color: "crimson",margin:"0px" }}>{errors.email}</p>
               ) : (
                 ""
               )}
@@ -102,7 +110,7 @@ export default function Login() {
                 aria-labelledby="passwordHelpBlock"
               ></input>
               {touched.password && errors.password ? (
-                <p style={{ color: "crimson" }}>{errors.password}</p>
+                <p style={{ color: "crimson", margin:"0px" }}>{errors.password}</p>
               ) : (
                 ""
               )}
@@ -114,19 +122,37 @@ export default function Login() {
             <hr></hr>
             <div className="d-flex justify-content-center align-items-end mb-0 pb-0">
               <p className="pe-2 mb-0">Don't have an account?</p>
-              <a href="" className="text-primary text-decoration-none">
+              <a
+                onClick={() => navigate("/register")}
+                className="text-primary text-decoration-none"
+              >
                 Create one
               </a>
             </div>
-            <div className="d-flex justify-content-center">
-              <p className="pe-2 mb-0">Having trouble logging in?</p>
-              <a href="" className="text-primary text-decoration-none">
-                Reset your password
-              </a>
+            <div className="d-flex justify-content-center ">
+              <div
+                style={{
+                  backgroundColor: "#000000",
+                  color: "white",
+                  padding: "10px",
+                  borderRadius: "10px",
+                }}
+              >
+                <p className="m-0 mt-2">For Demo:</p>
+                <p className="m-0">Email: jayasuriya@gmail.com</p>
+                <p className="m-0">Password: user@123</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={open}
+        onClick={handleClose}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </div>
   );
 }

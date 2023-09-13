@@ -171,6 +171,7 @@
 .text-click{
   display: flex;
   justify-content: start;
+  cursor: pointer;
   /* height: 100%; */
 }
 .text-click>span{
@@ -257,6 +258,11 @@
 
 .login-btn{
   margin:15px 0 15px 0;
+}
+
+.color-select{
+  color: inherit;
+  /* width: 20px; */
 }
 
 

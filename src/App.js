@@ -1,25 +1,21 @@
 import './App.css';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import Notes from './component/notes';
-import ToDoList from './component/to-do-list';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import Login from './component/login';
 import SignUp from './component/signup';
-import AppProvider from './Context/AppProvider';
-import Note from './component/note';
+import Home from './component/home';
+import EditNote from './component/edit.note';
 
 function App() {
   return (
-    // <div className="App">
       <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login/>}/>
+        <Route path="/home" element={<Home/>}/>
         <Route path="/register" element={<SignUp/>}/>
-        <Route path="/security" element={<AppProvider/>}/>
-        <Route path="/note" element={<Note/>}/>
-        <Route path="/todolist" element={<ToDoList/>}/>
+        <Route path="/edit/:note_id" element={<EditNote/>}/>
+        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
       </BrowserRouter>
-    // </div>
   );
 }
 
